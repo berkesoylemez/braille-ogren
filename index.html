@@ -1,4 +1,3 @@
-index.html
 <!DOCTYPE html>
 <html lang="tr">
 <head>
@@ -17,7 +16,8 @@ index.html
       --text: #1f2937;
       --muted: #6b7280;
       --primary: #4f46e5;
-      --primary-soft: #eef2ff;
+      --success: #16a34a;
+      --danger: #dc2626;
       --dot: #d6dbe7;
       --dot-active: #111827;
       --shadow: 0 14px 40px rgba(31, 41, 55, 0.10);
@@ -34,7 +34,7 @@ index.html
     }
 
     .wrap {
-      max-width: 1100px;
+      max-width: 1150px;
       margin: 0 auto;
       padding: 28px 16px 40px;
     }
@@ -81,10 +81,8 @@ index.html
       margin-bottom: 10px;
     }
 
-    textarea {
+    textarea, input {
       width: 100%;
-      min-height: 120px;
-      resize: vertical;
       border: 1.5px solid #d9dff0;
       border-radius: 18px;
       padding: 16px 18px;
@@ -96,7 +94,12 @@ index.html
       transition: 0.2s ease;
     }
 
-    textarea:focus {
+    textarea {
+      min-height: 120px;
+      resize: vertical;
+    }
+
+    textarea:focus, input:focus {
       border-color: #a5b4fc;
       box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.10);
     }
@@ -191,7 +194,8 @@ index.html
     }
 
     .braille-cell,
-    .bracelet-cell {
+    .bracelet-cell,
+    .game-cell {
       display: grid;
       grid-template-columns: repeat(2, 22px);
       grid-template-rows: repeat(3, 22px);
@@ -200,10 +204,12 @@ index.html
       border-radius: 16px;
       background: #f5f7fc;
       border: 1px solid #e7ebf3;
+      width: fit-content;
     }
 
     .dot,
-    .bead {
+    .bead,
+    .game-dot {
       width: 22px;
       height: 22px;
       border-radius: 50%;
@@ -213,7 +219,8 @@ index.html
     }
 
     .dot.active,
-    .bead.active {
+    .bead.active,
+    .game-dot.active {
       background: var(--dot-active);
       border-color: var(--dot-active);
       box-shadow: inset 0 0 0 1px rgba(255,255,255,0.08);
@@ -223,6 +230,74 @@ index.html
       margin-top: 8px;
       color: var(--muted);
       font-size: 13px;
+    }
+
+    .game-box {
+      display: grid;
+      gap: 16px;
+    }
+
+    .score-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .score-pill {
+      padding: 10px 14px;
+      border-radius: 999px;
+      background: #f8faff;
+      border: 1px solid #dfe7f3;
+      font-weight: 700;
+      font-size: 14px;
+    }
+
+    .game-center {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 14px;
+      padding: 16px;
+      background: rgba(248, 250, 255, 0.95);
+      border: 1px solid #e4e8f2;
+      border-radius: 20px;
+    }
+
+    .game-title {
+      font-size: 18px;
+      font-weight: 800;
+    }
+
+    .game-answer-row {
+      display: flex;
+      gap: 10px;
+      width: 100%;
+      max-width: 380px;
+    }
+
+    .game-answer-row input {
+      flex: 1;
+    }
+
+    .message {
+      min-height: 28px;
+      font-weight: 700;
+      text-align: center;
+    }
+
+    .message.success {
+      color: var(--success);
+    }
+
+    .message.error {
+      color: var(--danger);
+    }
+
+    .letters-help {
+      font-size: 14px;
+      color: var(--muted);
+      text-align: center;
+      line-height: 1.5;
     }
 
     @media (min-width: 860px) {
@@ -255,7 +330,8 @@ index.html
       }
 
       .braille-cell,
-      .bracelet-cell {
+      .bracelet-cell,
+      .game-cell {
         grid-template-columns: repeat(2, 18px);
         grid-template-rows: repeat(3, 18px);
         gap: 5px;
@@ -263,7 +339,8 @@ index.html
       }
 
       .dot,
-      .bead {
+      .bead,
+      .game-dot {
         width: 18px;
         height: 18px;
       }
@@ -272,6 +349,11 @@ index.html
         min-width: 62px;
         padding: 8px;
       }
+
+      .game-answer-row {
+        flex-direction: column;
+        max-width: 100%;
+      }
     }
   </style>
 </head>
@@ -279,7 +361,7 @@ index.html
   <div class="wrap">
     <div class="topbar">
       <h1 class="title">Türkçe Braille</h1>
-      <div class="badge">6 nokta • sembol • bileklik</div>
+      <div class="badge">çevirici + oyun modu</div>
     </div>
 
     <div class="panel full">
@@ -310,6 +392,39 @@ index.html
         <h2 class="section-title">Bileklik önizleme</h2>
         <div id="braceletPreview" class="output-box cards-grid"></div>
         <div class="footer-note">Aynı nokta dizilimi kullanılır.</div>
+      </div>
+
+      <div class="panel full">
+        <h2 class="section-title">Oyun modu</h2>
+
+        <div class="game-box">
+          <div class="score-row">
+            <div class="score-pill">Puan: <span id="score">0</span></div>
+            <div class="score-pill">Doğru: <span id="correctCount">0</span></div>
+            <div class="score-pill">Yanlış: <span id="wrongCount">0</span></div>
+          </div>
+
+          <div class="game-center">
+            <div class="game-title">Bu Braille hangi harf?</div>
+            <div id="gameBraille"></div>
+
+            <div class="game-answer-row">
+              <input id="guessInput" type="text" maxlength="1" placeholder="Harf yaz" />
+              <button class="btn-primary" onclick="checkAnswer()">Cevabı kontrol et</button>
+            </div>
+
+            <div id="gameMessage" class="message"></div>
+
+            <div class="actions">
+              <button class="btn-secondary" onclick="nextQuestion()">Yeni soru</button>
+              <button class="btn-secondary" onclick="resetGame()">Skoru sıfırla</button>
+            </div>
+
+            <div class="letters-help">
+              Oyun harfleri: a, b, c, ç, d, e, f, g, ğ, h, ı, i, j, k, l, m, n, o, ö, p, r, s, ş, t, u, ü, v, y, z
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -347,6 +462,12 @@ index.html
       "z": [1, 3, 5, 6],
       " ": []
     };
+
+    const gameLetters = Object.keys(brailleMap).filter(letter => letter !== " ");
+    let currentAnswer = "";
+    let score = 0;
+    let correctCount = 0;
+    let wrongCount = 0;
 
     function normalizeChar(char) {
       return char.toLocaleLowerCase("tr-TR");
@@ -474,9 +595,78 @@ index.html
       speechSynthesis.speak(utterance);
     }
 
+    function renderGameBraille(letter) {
+      const container = document.getElementById("gameBraille");
+      container.innerHTML = "";
+
+      const dots = getBrailleDots(letter);
+      const cell = createCell(dots, "game-cell", "game-dot");
+      container.appendChild(cell);
+    }
+
+    function updateScoreboard() {
+      document.getElementById("score").textContent = score;
+      document.getElementById("correctCount").textContent = correctCount;
+      document.getElementById("wrongCount").textContent = wrongCount;
+    }
+
+    function nextQuestion() {
+      const randomIndex = Math.floor(Math.random() * gameLetters.length);
+      currentAnswer = gameLetters[randomIndex];
+      renderGameBraille(currentAnswer);
+
+      const input = document.getElementById("guessInput");
+      const message = document.getElementById("gameMessage");
+
+      input.value = "";
+      message.textContent = "";
+      message.className = "message";
+      input.focus();
+    }
+
+    function checkAnswer() {
+      const input = document.getElementById("guessInput");
+      const guess = normalizeChar(input.value.trim());
+      const answer = normalizeChar(currentAnswer);
+      const message = document.getElementById("gameMessage");
+
+      if (!guess) {
+        message.textContent = "Bir harf yaz.";
+        message.className = "message error";
+        return;
+      }
+
+      if (guess === answer) {
+        score += 10;
+        correctCount += 1;
+        message.textContent = "Doğru bildin! Cevap: " + currentAnswer.toUpperCase("tr-TR");
+        message.className = "message success";
+      } else {
+        wrongCount += 1;
+        message.textContent = "Yanlış. Doğru cevap: " + currentAnswer.toUpperCase("tr-TR");
+        message.className = "message error";
+      }
+
+      updateScoreboard();
+    }
+
+    function resetGame() {
+      score = 0;
+      correctCount = 0;
+      wrongCount = 0;
+      updateScoreboard();
+      nextQuestion();
+    }
+
     document.getElementById("textInput").addEventListener("input", convertAll);
+    document.getElementById("guessInput").addEventListener("keydown", function(event) {
+      if (event.key === "Enter") {
+        checkAnswer();
+      }
+    });
 
     convertAll();
+    resetGame();
   </script>
 </body>
 </html>
