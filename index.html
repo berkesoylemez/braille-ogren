@@ -1,3 +1,4 @@
+index.html
 <!DOCTYPE html>
 <html lang="tr">
 <head>
@@ -462,7 +463,8 @@
       "z": [1, 3, 5, 6],
       " ": []
     };
-
+    const correctSound = new Audio("https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg");
+    const wrongSound = new Audio("https://actions.google.com/sounds/v1/cartoon/wood_plank_flicks.ogg");
     const gameLetters = Object.keys(brailleMap).filter(letter => letter !== " ");
     let currentAnswer = "";
     let score = 0;
@@ -639,10 +641,14 @@
       if (guess === answer) {
         score += 10;
         correctCount += 1;
+        correctSound.currentTime = 0;
+        correctSound.play();
         message.textContent = "Doğru bildin! Cevap: " + currentAnswer.toUpperCase("tr-TR");
         message.className = "message success";
       } else {
         wrongCount += 1;
+        wrongSound.currentTime = 0;
+        wrongSound.play();
         message.textContent = "Yanlış. Doğru cevap: " + currentAnswer.toUpperCase("tr-TR");
         message.className = "message error";
       }
